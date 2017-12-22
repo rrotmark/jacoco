@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 Mountainminds GmbH & Co. KG and Contributors
+ * Copyright (c) 2009, 2017 Mountainminds GmbH & Co. KG and Contributors
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,11 +12,11 @@
 package org.jacoco.core.internal.analysis;
 
 import org.jacoco.core.analysis.IMethodCoverage;
+import org.jacoco.core.internal.analysis.filter.Filters;
 import org.jacoco.core.internal.flow.ClassProbesVisitor;
 import org.jacoco.core.internal.flow.MethodProbesVisitor;
 import org.jacoco.core.internal.instr.InstrSupport;
 import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Opcodes;
 
 /**
  * Analyzes the structure of a class.
@@ -64,12 +64,9 @@ public class ClassAnalyzer extends ClassProbesVisitor {
 
 		InstrSupport.assertNotInstrumented(name, coverage.getName());
 
-		if (isMethodFiltered(access, name)) {
-			return null;
-		}
-
-		return new MethodAnalyzer(stringPool.get(name), stringPool.get(desc),
-				stringPool.get(signature), probes) {
+		return new MethodAnalyzer(coverage.getName(), coverage.getSuperName(),
+				stringPool.get(name), stringPool.get(desc),
+				stringPool.get(signature), probes, Filters.ALL) {
 			@Override
 			public void visitEnd() {
 				super.visitEnd();
@@ -80,12 +77,6 @@ public class ClassAnalyzer extends ClassProbesVisitor {
 				}
 			}
 		};
-	}
-
-	// TODO: Use filter hook in future
-	private boolean isMethodFiltered(final int access, final String name) {
-		return (access & Opcodes.ACC_SYNTHETIC) != 0
-				&& !name.startsWith("lambda$");
 	}
 
 	@Override

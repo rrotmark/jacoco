@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 Mountainminds GmbH & Co. KG and Contributors
+ * Copyright (c) 2009, 2017 Mountainminds GmbH & Co. KG and Contributors
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -149,8 +149,11 @@ public abstract class AbstractAgentMojo extends AbstractJacocoMojo {
 	protected void skipMojo() {
 		final String name = getEffectivePropertyName();
 		final Properties projectProperties = getProject().getProperties();
-		getLog().info(name + " set to empty");
-		projectProperties.setProperty(name, "");
+		final String oldValue = projectProperties.getProperty(name);
+		if (oldValue == null) {
+			getLog().info(name + " set to empty");
+			projectProperties.setProperty(name, "");
+		}
 	}
 
 	File getAgentJarFile() {

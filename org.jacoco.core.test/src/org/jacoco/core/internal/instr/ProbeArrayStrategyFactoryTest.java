@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 Mountainminds GmbH & Co. KG and Contributors
+ * Copyright (c) 2009, 2017 Mountainminds GmbH & Co. KG and Contributors
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -283,7 +283,7 @@ public class ProbeArrayStrategyFactoryTest {
 		private final List<AddedMethod> methods = new ArrayList<AddedMethod>();
 
 		ClassVisitorMock() {
-			super(Opcodes.ASM5);
+			super(Opcodes.ASM6);
 		}
 
 		@Override
@@ -300,7 +300,7 @@ public class ProbeArrayStrategyFactoryTest {
 				String signature, String[] exceptions) {
 			final AddedMethod m = new AddedMethod(access, name, desc);
 			methods.add(m);
-			return new MethodVisitor(Opcodes.ASM5) {
+			return new MethodVisitor(Opcodes.ASM6) {
 				@Override
 				public void visitFrame(int type, int nLocal, Object[] local,
 						int nStack, Object[] stack) {
@@ -337,7 +337,8 @@ public class ProbeArrayStrategyFactoryTest {
 						assertFalse(itf);
 						return;
 					}
-					assertEquals(itf, isInterface);
+					assertEquals(Boolean.valueOf(itf),
+							Boolean.valueOf(isInterface));
 
 					assertEquals(Opcodes.INVOKESTATIC, opcode);
 					assertEquals("Foo", owner);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 Mountainminds GmbH & Co. KG and Contributors
+ * Copyright (c) 2009, 2017 Mountainminds GmbH & Co. KG and Contributors
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.jacoco.core.internal.instr;
 
-import org.jacoco.core.JaCoCo;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -56,7 +55,7 @@ class ProbeInserter extends MethodVisitor implements IProbeInserter {
 	 */
 	ProbeInserter(final int access, final String name, final String desc, final MethodVisitor mv,
 			final IProbeArrayStrategy arrayStrategy) {
-		super(JaCoCo.ASM_API_VERSION, mv);
+		super(InstrSupport.ASM_API_VERSION, mv);
 		this.clinit = InstrSupport.CLINIT_NAME.equals(name);
 		this.arrayStrategy = arrayStrategy;
 		int pos = (Opcodes.ACC_STATIC & access) == 0 ? 1 : 0;

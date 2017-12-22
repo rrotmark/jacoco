@@ -22,6 +22,118 @@
 
 <h3>New Features</h3>
 <ul>
+  <li>Limit configuration of Maven check goal and Ant check element now also
+      supports percentage values 
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/534">#534</a>).</li>
+  <li>Exclude from a report enum methods <code>valueOf</code> and <code>values</code>
+      that are created by compiler
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/491">#491</a>).</li>
+  <li>Exclude from a report a part of bytecode that compiler generates for a
+      synchronized statement
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/501">#501</a>).</li>
+  <li>Exclude from a report a part of bytecode that compiler generates for a
+      try-with-resources statement
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/500">#500</a>).</li>
+  <li>During creation of a report merge duplicate instructions that compiler generates
+      for finally blocks
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/604">#604</a>).</li>
+  <li>Exclude from a report methods which are annotated with <code>@lombok.Generated</code>.
+      Initial analysis and contribution by Rüdiger zu Dohna
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/513">#513</a>).</li>
+  <li>Exclude from a report methods which are annotated with
+      <code>@groovy.transform.Generated</code> to better integrate with Groovy
+       >= 2.5.0. Thanks to Andres Almiray for adding the annotation to Groovy
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/610">#610</a>).</li>
+  <li>Exclude from a report private empty constructors that do not have arguments
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/529">#529</a>).</li>
+  <li>Exclude from a report a part of bytecode that javac generates for a
+      String in switch statement
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/596">#596</a>).</li>
+  <li>Maven aggregated reports will now also include modules of <code>runtime</code>
+      and <code>provided</code> dependencies
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/498">#498</a>,
+      <a href="https://github.com/jacoco/jacoco/issues/572">#572</a>).</li>
+  <li>JaCoCo now comes with a simple command line interface
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/525">#525</a>).</li>
+  <li>Manifests of JAR files now have <code>Automatic-Module-Name</code> for Java 9
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/565">#565</a>).</li>
+</ul>
+
+<h3>Fixed Bugs</h3>
+<ul>
+  <li>Fixed bug in instrumentation of exception handlers, which was causing damage
+      of structured locking in certain situations and as consequence poor
+      performance of instrumented methods, analysis and fix contributed by Allen Hair
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/627">#627</a>).</li>
+  <li><code>dump</code> commands now report error when server unexpectedly
+      closes connection without sending response
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/538">#538</a>).</li>
+  <li>More information about context is provided when unable to read stream during
+      analysis
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/541">#541</a>).</li>
+  <li>Reduced chance of conflict with other agents
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/555">#555</a>).</li>
+  <li>Restored Maven <code>help</code> goal that was missing in version 0.7.9
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/559">#559</a>).</li>
+  <li><code>NullPointerException</code> during offline instrumentation of
+      <code>module-info.class</code>
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/600">#600</a>).</li>
+  <li>Incorrect update of frames caused by bug in ASM library
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/600">#600</a>).</li>
+  <li>Loss of <code>InnerClasses</code> attribute caused by bug in ASM library
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/600">#600</a>).</li>
+  <li><code>NegativeArraySizeException</code> during instrumentation caused by bug
+      in ASM library
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/600">#600</a>).</li>
+</ul>
+
+<h3>Non-functional Changes</h3>
+<ul>
+  <li>JaCoCo now depends on ASM 6.0
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/600">#600</a>).</li>
+  <li>More information about context is provided when unable to read input during
+      instrumentation
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/527">#527</a>).</li>
+</ul>
+
+<h2>Release 0.7.9 (2017/02/05)</h2>
+
+<h3>Fixed Bugs</h3>
+<ul>
+  <li>"<code>java.lang.ClassFormatError: Short length on BootstrapMethods in class file</code>"
+      caused by bug in ASM library
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/462">#462</a>).</li>
+  <li>Do not recompute frames in case of large methods, otherwise
+      <code>java.lang.ClassNotFoundException</code> might be thrown
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/177">#177</a>).</li>
+  <li><code>ExecutionDataWriter.FORMAT_VERSION</code> is not a compile-time constant
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/474">#474</a>).</li>
+  <li>Maven goal "prepare-agent" should not overwrite existing property value if execution was skipped
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/486">#486</a>).</li>
+</ul>
+
+<h3>API Changes</h3>
+<ul>
+  <li><code>JaCoCo.ASM_API_VERSION</code> removed
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/474">#474</a>).</li>
+</ul>
+
+<h3>Non-functional Changes</h3>
+<ul>
+  <li>JaCoCo now depends on ASM 5.2.</li>
+  <li>OSGi metadata now generated automatically and additionally include
+      <code>uses</code> directives, <code>Require-Capability</code> attribute,
+      and export of all internal packages with <code>x-internal:=true</code> directive
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/211">#211</a>).</li>
+  <li>Removed OSGi attributes that were mistakenly added in version 0.6.1 into
+      <code>jacocoant.jar</code> that contains all dependencies
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/211">#211</a>).</li>
+</ul>
+
+<h2>Release 0.7.8 (2016/12/09)</h2>
+
+<h3>New Features</h3>
+<ul>
   <li>User property <code>jacoco.dataFile</code> for parameter <code>dataFile</code>
       of Maven <code>report</code> goal
       (GitHub <a href="https://github.com/jacoco/jacoco/issues/322">#322</a>).</li>
@@ -46,6 +158,16 @@
       (GitHub <a href="https://github.com/jacoco/jacoco/issues/428">#428</a>).</li>
   <li>Add Maven goal <code>report-aggregate</code> to lifecycle-mapping-metadata.xml
       (GitHub <a href="https://github.com/jacoco/jacoco/issues/427">#427</a>).</li>
+</ul>
+
+<h3>Non-functional Changes</h3>
+<ul>
+  <li>Released JaCoCo JARs are not signed any more. Signed versions of JaCoCo are
+      now available from the Eclipse Orbit project
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/466">#466</a>).</li>
+  <li>Simplified numbering of versions - JaCoCo JARs in Maven Central repository
+      do not have qualifier any more
+      (GitHub <a href="https://github.com/jacoco/jacoco/issues/468">#468</a>).</li>
 </ul>
 
 <h2>Release 0.7.7 (2016/06/06)</h2>

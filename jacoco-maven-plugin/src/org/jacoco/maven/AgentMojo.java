@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 Mountainminds GmbH & Co. KG and Contributors
+ * Copyright (c) 2009, 2017 Mountainminds GmbH & Co. KG and Contributors
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,6 +49,11 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
  *     &lt;/configuration&gt;
  *   &lt;/plugin&gt;
  * </pre>
+ * 
+ * <p>
+ * You can define empty property to avoid JVM startup error <code>Could not find or load main class @{argLine}</code>
+ * when using late property evaluation and jacoco-maven-plugin not executed.
+ * </p>
  * 
  * <p>
  * Another way is to define "argLine" as a Maven property rather than

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-   Copyright (c) 2009, 2016 Mountainminds GmbH & Co. KG and Contributors
+   Copyright (c) 2009, 2017 Mountainminds GmbH & Co. KG and Contributors
    All rights reserved. This program and the accompanying materials
    are made available under the terms of the Eclipse Public License v1.0
    which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@
 
   <groupId>org.jacoco</groupId>
   <artifactId>org.jacoco.build</artifactId>
-  <version>0.7.8-SNAPSHOT</version>
+  <version>0.7.10-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>JaCoCo</name>
@@ -94,12 +94,12 @@
     <module>../org.jacoco.agent.rt</module>
     <module>../org.jacoco.agent</module>
     <module>../org.jacoco.ant</module>
-
+    <module>../org.jacoco.cli</module>
+    <module>../org.jacoco.examples</module>
     <module>../jacoco-maven-plugin</module>
 
     <module>../org.jacoco.tests</module>
 
-    <module>../org.jacoco.examples</module>
     <module>../org.jacoco.doc</module>
     <module>../jacoco</module>
   </modules>
@@ -132,7 +132,7 @@
 
     <maven.build.timestamp.format>yyyyMMddhhmm</maven.build.timestamp.format>
     <jacoco.home.url>http://www.jacoco.org/jacoco</jacoco.home.url>
-    <copyright.years>${project.inceptionYear}, 2016</copyright.years>
+    <copyright.years>${project.inceptionYear}, 2017</copyright.years>
 
     <maven.compiler.source>1.5</maven.compiler.source>
     <maven.compiler.target>1.5</maven.compiler.target>
@@ -141,8 +141,9 @@
     <argLine>${jvm.args}</argLine>
 
     <!-- Dependencies versions -->
-    <asm.version>5.1</asm.version>
+    <asm.version>6.0</asm.version>
     <ant.version>1.7.1</ant.version>
+    <args4j.version>2.0.28</args4j.version>
     <junit.version>4.8.2</junit.version>
 
     <!-- ================== -->
@@ -198,13 +199,38 @@
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
+        <artifactId>org.jacoco.cli</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>org.jacoco.examples</artifactId>
         <version>${project.version}</version>
       </dependency>
       <!-- Third-party dependencies -->
       <dependency>
         <groupId>org.ow2.asm</groupId>
-        <artifactId>asm-debug-all</artifactId>
+        <artifactId>asm</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-commons</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-tree</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-analysis</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-util</artifactId>
         <version>${asm.version}</version>
       </dependency>
       <dependency>
@@ -221,6 +247,11 @@
         <groupId>org.apache.ant</groupId>
         <artifactId>ant-antunit</artifactId>
         <version>1.2</version>
+      </dependency>
+      <dependency>
+        <groupId>args4j</groupId>
+        <artifactId>args4j</artifactId>
+        <version>${args4j.version}</version>
       </dependency>
       <dependency>
         <groupId>junit</groupId>
@@ -316,22 +347,25 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jarsigner-plugin</artifactId>
-          <version>1.4</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.8</version>
+          <version>2.10.4</version>
           <configuration>
             <quiet>true</quiet>
             <detectOfflineLinks>false</detectOfflineLinks>
           </configuration>
+          <dependencies>
+            <dependency>
+              <!-- Workaround to be able to use JDK 9 >= b175 -->
+              <groupId>commons-lang</groupId>
+              <artifactId>commons-lang</artifactId>
+              <version>2.6</version>
+            </dependency>
+          </dependencies>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-plugin-plugin</artifactId>
-          <version>3.3</version>
+          <version>3.5</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -356,7 +390,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
-          <version>2.4.3</version>
+          <version>3.1.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -399,11 +433,23 @@
           <artifactId>xml-maven-plugin</artifactId>
           <version>1.0</version>
         </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <!--  latest version which runs with Java 5 -->
+          <version>1.5.0</version>
+        </plugin>
         <!-- Third-party plugins -->
         <plugin>
-          <groupId>org.codehaus.groovy.maven</groupId>
-          <artifactId>gmaven-plugin</artifactId>
-          <version>1.0</version>
+          <groupId>com.github.genthaler</groupId>
+          <artifactId>beanshell-maven-plugin</artifactId>
+          <version>1.4</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <!-- newer versions require Java 7 -->
+          <version>2.5.4</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -448,15 +494,6 @@
               </excludes>
             </filter>
           </filters>
-          <transformers>
-            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-              <manifestEntries>
-                <Implementation-Title>${project.description}</Implementation-Title>
-                <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
-                <Implementation-Version>${project.version}</Implementation-Version>
-              </manifestEntries>
-            </transformer>
-          </transformers>
         </configuration>
       </plugin>
 
@@ -521,7 +558,7 @@
                 <fileset dir="${basedir}" includes="**/*.java,**/*.xml,**/*.bsh" excludes="target/**,.idea/**,nb-configuration.xml" id="missinglicense.fileset">
                   <not>
                     <and>
-                      <contains text="Copyright (c) 2009, 2016 Mountainminds GmbH &amp; Co. KG and Contributors"/>
+                      <contains text="Copyright (c) 2009, 2017 Mountainminds GmbH &amp; Co. KG and Contributors"/>
                       <contains text="All rights reserved. This program and the accompanying materials"/>
                       <contains text="are made available under the terms of the Eclipse Public License v1.0"/>
                       <contains text="which accompanies this distribution, and is available at"/>
@@ -577,31 +614,64 @@
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.groovy.maven</groupId>
-        <artifactId>gmaven-plugin</artifactId>
+        <groupId>com.github.genthaler</groupId>
+        <artifactId>beanshell-maven-plugin</artifactId>
         <executions>
           <execution>
             <id>parse-version</id>
             <phase>validate</phase>
             <goals>
-              <goal>execute</goal>
+              <goal>run</goal>
             </goals>
             <configuration>
-              <source>
-                major = project.properties['parsedVersion.majorVersion']
-                minor = project.properties['parsedVersion.minorVersion']
-                incremental = project.properties['parsedVersion.incrementalVersion']
-                qualifier = "${maven.build.timestamp}"
-                project.properties['buildQualifier'] = qualifier
-                project.properties['unqualifiedVersion'] = major + '.' + minor + '.' + incremental
-                project.properties['qualified.bundle.version'] = project.properties['unqualifiedVersion'] + '.' + project.properties['buildQualifier']
-                project.properties['build.date'] = qualifier.substring(0, 4) + '/' + qualifier.substring(4, 6) + '/' + qualifier.substring(6, 8)
-                buildNumber = project.properties['buildNumber']
-                project.properties['jacoco.runtime.package.name'] = "org.jacoco.agent.rt.internal_" + buildNumber.substring(buildNumber.length() - 7, buildNumber.length())
-              </source>
+              <quiet>true</quiet>
+              <script><![CDATA[
+                major = project.getProperties().get("parsedVersion.majorVersion");
+                minor = project.getProperties().get("parsedVersion.minorVersion");
+                incremental = project.getProperties().get("parsedVersion.incrementalVersion");
+                unqualifiedVersion = major + "." + minor + "." + incremental;
+                project.getProperties().setProperty("unqualifiedVersion", unqualifiedVersion);
+
+                qualifier = "${maven.build.timestamp}";
+                project.getProperties().setProperty("buildQualifier", qualifier);
+
+                qualifiedVersion = unqualifiedVersion + "." + qualifier;
+                project.getProperties().setProperty("qualified.bundle.version", qualifiedVersion);
+
+                buildDate = qualifier.substring(0, 4) + "/" + qualifier.substring(4, 6) + "/" + qualifier.substring(6, 8);
+                project.getProperties().setProperty("build.date", buildDate);
+
+                buildNumber = project.getProperties().get("buildNumber");
+                pkgName = buildNumber.substring(buildNumber.length() - 7, buildNumber.length());
+                project.getProperties().setProperty("jacoco.runtime.package.name", "org.jacoco.agent.rt.internal_" + pkgName);
+              ]]>
+              </script>
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <configuration>
+          <instructions>
+            <Automatic-Module-Name>${project.artifactId}</Automatic-Module-Name>
+            <Bundle-Version>${qualified.bundle.version}</Bundle-Version>
+            <Bundle-Name>${project.description}</Bundle-Name>
+            <Export-Package>
+              !about.html,
+              *.internal*;x-internal:=true;version="${version;===;${Bundle-Version}}",
+              *;version="${version;===;${Bundle-Version}}"
+            </Export-Package>
+            <Import-Package>
+              org.jacoco.*;version="${range;[===,==+);${Bundle-Version}}",
+              org.objectweb.asm.*;version="${range;[===,=+);${asm.version}}"
+            </Import-Package>
+            <Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
+            <Eclipse-SourceReferences>scm:git:git://github.com/jacoco/jacoco.git;path="${project.artifactId}";commitId=${buildNumber}</Eclipse-SourceReferences>
+          </instructions>
+        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -673,6 +743,40 @@
       </properties>
     </profile>
 
+    <!-- This profile is used for compilation with ECJ. -->
+    <profile>
+      <id>ecj</id>
+      <activation>
+        <property>
+          <name>ecj</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.6.0</version>
+            <configuration>
+              <compilerId>eclipse</compilerId>
+            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>org.eclipse.jdt.core.compiler</groupId>
+                <artifactId>ecj</artifactId>
+                <version>4.6.1</version>
+              </dependency>
+              <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-compiler-eclipse</artifactId>
+                <version>2.8.1</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <profile>
       <id>jdk16</id>
       <activation>
@@ -723,80 +827,6 @@
       <properties>
         <jvm.args>-XX:-FailOverToOldVerifier -Xverify:all</jvm.args>
       </properties>
-    </profile>
-
-    <profile>
-      <id>sign</id>
-      <activation>
-        <property>
-          <name>jarsigner.alias</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jarsigner-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>sign</id>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>manifest</id>
-      <activation>
-        <file>
-          <exists>META-INF/MANIFEST.MF</exists>
-        </file>
-      </activation>
-      <properties>
-        <bundle-manifest>${project.build.directory}/META-INF/MANIFEST.MF</bundle-manifest>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>translate-qualifier</id>
-                <phase>generate-resources</phase>
-                <configuration>
-                  <target>
-                    <copy file="META-INF/MANIFEST.MF" tofile="${bundle-manifest}" overwrite="true"/>
-                    <replace file="${bundle-manifest}">
-                      <replacefilter token=".qualifier" value=".${buildQualifier}"/>
-                    </replace>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <configuration>
-              <archive>
-                <manifestFile>${bundle-manifest}</manifestFile>
-                <manifestEntries>
-                  <Eclipse-SourceReferences>scm:git:git://github.com/jacoco/jacoco.git;path="${project.artifactId}";commitId=${buildNumber}</Eclipse-SourceReferences>
-                </manifestEntries>
-              </archive>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
 
     <profile>
@@ -857,12 +887,6 @@
                 </goals>
                 <configuration>
                   <rules>
-                    <!--
-                    <requireActiveProfile>
-                      <message>You must sign JARs during release.</message>
-                      <profiles>sign</profiles>
-                    </requireActiveProfile>
-                    -->
                     <requireReleaseVersion/>
                     <requireProperty>
                       <property>buildNumber</property>

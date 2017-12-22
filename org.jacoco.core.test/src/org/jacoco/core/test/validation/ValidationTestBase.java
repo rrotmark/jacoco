@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 Mountainminds GmbH & Co. KG and Contributors
+ * Copyright (c) 2009, 2017 Mountainminds GmbH & Co. KG and Contributors
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,8 @@ import org.junit.Before;
  * coverage and provides the coverage results for validation.
  */
 public abstract class ValidationTestBase {
+
+	protected static final boolean isJDKCompiler = Compiler.DETECT.isJDK();
 
 	private static final String[] STATUS_NAME = new String[4];
 
@@ -107,6 +109,11 @@ public abstract class ValidationTestBase {
 		analyzer.analyzeClass(bytes, data.getName());
 	}
 
+	protected void assertMethodCount(final int expectedTotal) {
+		assertEquals(expectedTotal,
+				sourceCoverage.getMethodCounter().getTotalCount());
+	}
+
 	protected void assertLine(final String tag, final int status) {
 		final int nr = source.getLineNumber(tag);
 		final ILine line = sourceCoverage.getLine(nr);
@@ -116,8 +123,9 @@ public abstract class ValidationTestBase {
 		assertEquals(msg, STATUS_NAME[status], STATUS_NAME[insnStatus]);
 	}
 
-	protected void assertLine(final String tag, final int missedBranches,
-			final int coveredBranches) {
+	protected void assertLine(final String tag, final int status,
+			final int missedBranches, final int coveredBranches) {
+		assertLine(tag, status);
 		final int nr = source.getLineNumber(tag);
 		final ILine line = sourceCoverage.getLine(nr);
 		final String msg = String.format("Branches in line %s: %s",
@@ -125,12 +133,6 @@ public abstract class ValidationTestBase {
 		assertEquals(msg + " branches",
 				CounterImpl.getInstance(missedBranches, coveredBranches),
 				line.getBranchCounter());
-	}
-
-	protected void assertLine(final String tag, final int status,
-			final int missedBranches, final int coveredBranches) {
-		assertLine(tag, status);
-		assertLine(tag, missedBranches, coveredBranches);
 	}
 
 	protected void assertLogEvents(String... events) throws Exception {

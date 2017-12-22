@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2016 Mountainminds GmbH & Co. KG and Contributors
+ * Copyright (c) 2009, 2017 Mountainminds GmbH & Co. KG and Contributors
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,9 +17,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.jacoco.core.JaCoCo;
 import org.jacoco.core.instr.Instrumenter;
-import org.jacoco.core.internal.Java9Support;
+import org.jacoco.core.internal.instr.InstrSupport;
 import org.jacoco.core.runtime.IRuntime;
 import org.jacoco.core.runtime.SystemPropertiesRuntime;
 import org.jacoco.core.test.TargetLoader;
@@ -56,7 +55,7 @@ public class FramesTest {
 	 */
 	private static class MaxStackEliminator extends ClassVisitor {
 		public MaxStackEliminator(ClassVisitor cv) {
-			super(JaCoCo.ASM_API_VERSION, cv);
+			super(InstrSupport.ASM_API_VERSION, cv);
 		}
 
 		@Override
@@ -64,7 +63,7 @@ public class FramesTest {
 				String signature, String[] exceptions) {
 			final MethodVisitor mv = super.visitMethod(access, name, desc,
 					signature, exceptions);
-			return new MethodVisitor(JaCoCo.ASM_API_VERSION, mv) {
+			return new MethodVisitor(InstrSupport.ASM_API_VERSION, mv) {
 				@Override
 				public void visitMaxs(int maxStack, int maxLocals) {
 					super.visitMaxs(-1, maxLocals);
@@ -88,12 +87,11 @@ public class FramesTest {
 	}
 
 	private byte[] calculateFrames(byte[] source) {
-		ClassReader rc = new ClassReader(
-				Java9Support.downgradeIfRequired(source));
+		ClassReader rc = new ClassReader(source);
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 
 		// Adjust Version to 1.6 to enable frames:
-		rc.accept(new ClassVisitor(JaCoCo.ASM_API_VERSION, cw) {
+		rc.accept(new ClassVisitor(InstrSupport.ASM_API_VERSION, cw) {
 
 			@Override
 			public void visit(int version, int access, String name,
@@ -108,8 +106,9 @@ public class FramesTest {
 	private String dump(byte[] bytes) {
 		final StringWriter buffer = new StringWriter();
 		final PrintWriter writer = new PrintWriter(buffer);
-		new ClassReader(bytes).accept(new MaxStackEliminator(
-				new TraceClassVisitor(writer)), ClassReader.EXPAND_FRAMES);
+		new ClassReader(bytes).accept(
+				new MaxStackEliminator(new TraceClassVisitor(writer)),
+				ClassReader.EXPAND_FRAMES);
 		return buffer.toString();
 	}
 

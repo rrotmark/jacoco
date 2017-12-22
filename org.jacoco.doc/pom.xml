@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-   Copyright (c) 2009, 2016 Mountainminds GmbH & Co. KG and Contributors
+   Copyright (c) 2009, 2017 Mountainminds GmbH & Co. KG and Contributors
    All rights reserved. This program and the accompanying materials
    are made available under the terms of the Eclipse Public License v1.0
    which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.jacoco</groupId>
     <artifactId>org.jacoco.build</artifactId>
-    <version>0.7.8-SNAPSHOT</version>
+    <version>0.7.10-SNAPSHOT</version>
     <relativePath>../org.jacoco.build</relativePath>
   </parent>
 
@@ -77,6 +77,16 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>org.jacoco.ant.test</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>org.jacoco.cli</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>org.jacoco.cli.test</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -152,6 +162,7 @@
                   <fileset dir="../org.jacoco.agent.test/target" includes="surefire-reports/**/*.xml"/>
                   <fileset dir="../org.jacoco.agent.rt.test/target" includes="surefire-reports/**/*.xml"/>
                   <fileset dir="../org.jacoco.ant.test/target" includes="surefire-reports/**/*.xml"/>
+                  <fileset dir="../org.jacoco.cli.test/target" includes="surefire-reports/**/*.xml"/>
                   <fileset dir="../org.jacoco.core.test/target" includes="surefire-reports/**/*.xml"/>
                   <fileset dir="../org.jacoco.report.test/target" includes="surefire-reports/**/*.xml"/>
                   <fileset dir="../org.jacoco.examples.test/target" includes="surefire-reports/**/*.xml"/>
@@ -230,7 +241,7 @@
         <artifactId>xml-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>default-transform</id>
+            <id>transform-generated-doc</id>
             <goals>
               <goal>transform</goal>
             </goals>
@@ -242,6 +253,32 @@
                     <include>*.xml</include>
                   </includes>
                   <stylesheet>xsl/maven-goal.xsl</stylesheet>
+                  <fileMappers>
+                    <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+                      <targetExtension>.html</targetExtension>
+                    </fileMapper>
+                  </fileMappers>
+                  <parameters>
+                    <parameter>
+                      <name>qualified.bundle.version</name>
+                      <value>${qualified.bundle.version}</value>
+                    </parameter>
+                    <parameter>
+                      <name>jacoco.home.url</name>
+                      <value>${jacoco.home.url}</value>
+                    </parameter>
+                    <parameter>
+                      <name>copyright.years</name>
+                      <value>${copyright.years}</value>
+                    </parameter>
+                  </parameters>
+                </transformationSet>
+                <transformationSet>
+                  <dir>../org.jacoco.cli/target/generated-documentation</dir>
+                  <includes>
+                    <include>*.xml</include>
+                  </includes>
+                  <stylesheet>xsl/cli.xsl</stylesheet>
                   <fileMappers>
                     <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
                       <targetExtension>.html</targetExtension>
